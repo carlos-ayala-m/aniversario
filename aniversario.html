@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>2 Meses Contigo 🌙</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500&display=swap');
+
+    :root{
+      --ink:#0e1520;
+      --ink2:#1a2535;
+      --blue:#1e3a5f;
+      --blue-light:#2d5a8e;
+      --terra:#c4714a;
+      --terra-light:#e8956d;
+      --white:#f8f4ef;
+      --white2:#ede8e0;
+      --muted:#a09888;
+    }
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--ink);font-family:'Libre Baskerville',serif;color:var(--white);overflow-x:hidden}
+
+    /* ══════════════════════════════
+       PANTALLA DE REVEAL
+    ══════════════════════════════ */
+    #reveal{
+      position:fixed;inset:0;z-index:999;
+      display:grid;grid-template-rows:1fr auto 1fr;
+      align-items:center;justify-items:center;
+      background:var(--ink);
+      overflow:hidden;
+      transition:opacity 1.2s ease,visibility 1.2s ease;
+    }
+    #reveal.gone{opacity:0;visibility:hidden;pointer-events:none}
+    #reveal-canvas{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+    .reveal-top{
+      align-self:end;padding-bottom:2rem;
+      display:flex;flex-direction:column;align-items:center;gap:.6rem;
+      position:relative;z-index:1;
+    }
+    .reveal-line{
+      width:1px;height:80px;
+      background:linear-gradient(to bottom,transparent,var(--terra));
+      animation:lineGrow 1.5s ease forwards;
+      transform-origin:top;transform:scaleY(0);
+    }
+    @keyframes lineGrow{to{transform:scaleY(1)}}
+    .reveal-label{
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.5em;text-transform:uppercase;
+      color:var(--terra);opacity:0;
+      animation:fadeIn .8s ease .8s forwards;
+    }
+
+    .reveal-center{
+      text-align:center;padding:0 2rem;position:relative;z-index:1;
+    }
+    .reveal-num{
+      font-family:'Pinyon Script',cursive;
+      font-size:clamp(7rem,25vw,16rem);
+      color:var(--white);line-height:.9;
+      opacity:0;animation:fadeIn .6s ease .3s forwards;
+      text-shadow:0 0 80px rgba(196,113,74,.3);
+    }    .reveal-word{
+      font-family:'Montserrat',sans-serif;font-size:clamp(.7rem,2vw,.9rem);
+      letter-spacing:.6em;text-transform:uppercase;
+      color:var(--muted);margin-top:.5rem;
+      opacity:0;animation:fadeIn .6s ease .6s forwards;
+    }
+
+    .reveal-bottom{
+      align-self:start;padding-top:2rem;
+      display:flex;flex-direction:column;align-items:center;gap:1.5rem;
+      position:relative;z-index:1;
+    }
+    .reveal-title{
+      font-family:'Playfair Display',serif;font-style:italic;font-weight:400;
+      font-size:clamp(1.8rem,5vw,3rem);
+      color:var(--terra-light);
+      opacity:0;animation:fadeIn .8s ease 1s forwards;
+      text-align:center;padding:0 1rem;
+    }
+    .reveal-btn{
+      font-family:'Montserrat',sans-serif;font-size:.75rem;
+      letter-spacing:.3em;text-transform:uppercase;
+      background:none;border:none;color:var(--white2);
+      cursor:pointer;padding:.8rem 2rem;
+      position:relative;opacity:0;
+      animation:fadeIn .8s ease 1.4s forwards;
+    }
+    .reveal-btn::after{
+      content:'';position:absolute;bottom:0;left:50%;right:50%;
+      height:1px;background:var(--terra);
+      transition:left .3s ease,right .3s ease;
+    }
+    .reveal-btn:hover::after{left:0;right:0}
+    @keyframes fadeIn{to{opacity:1}}
+
+    /* ══════════════════════════════
+       LAYOUT PRINCIPAL
+    ══════════════════════════════ */
+    #site{opacity:0;transition:opacity 1s ease}
+    #site.visible{opacity:1}
+
+    /* ══════════════════════════════
+       HERO — TIPOGRAFÍA GRANDE
+    ══════════════════════════════ */
+    .hero{
+      min-height:100vh;display:flex;flex-direction:column;
+      justify-content:flex-end;padding:4rem 5vw 5rem;
+      position:relative;overflow:hidden;
+      border-bottom:1px solid rgba(248,244,239,.08);
+    }
+    .hero-bg-text{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      font-family:'Playfair Display',serif;font-weight:700;
+      font-size:clamp(12rem,35vw,28rem);
+      color:rgba(248,244,239,.03);
+      white-space:nowrap;pointer-events:none;
+      user-select:none;line-height:1;
+    }
+    .hero-tag{
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.5em;text-transform:uppercase;
+      color:var(--terra);margin-bottom:1.5rem;
+      opacity:0;animation:slideRight .8s ease .2s forwards;
+    }
+    .hero-h1{
+      font-family:'Playfair Display',serif;font-weight:700;
+      font-size:clamp(4rem,12vw,9rem);
+      color:var(--white);line-height:1;
+      opacity:0;animation:slideRight .8s ease .4s forwards;
+    }
+    .hero-h2{
+      font-family:'Libre Baskerville',serif;font-style:italic;
+      font-size:clamp(1rem,3vw,1.6rem);
+      color:var(--muted);margin-top:1rem;max-width:500px;
+      opacity:0;animation:slideRight .8s ease .6s forwards;
+    }
+    .hero-scroll{
+      position:absolute;right:5vw;bottom:3rem;
+      writing-mode:vertical-rl;
+      font-family:'Montserrat',sans-serif;font-size:.65rem;
+      letter-spacing:.3em;text-transform:uppercase;
+      color:var(--muted);
+      display:flex;align-items:center;gap:.8rem;
+      opacity:0;animation:fadeIn .8s ease 1.2s forwards;
+    }
+    .hero-scroll::after{content:'';width:1px;height:60px;background:var(--terra);display:block}
+    @keyframes slideRight{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+
+    /* ══════════════════════════════
+       CARTA — SCROLL REVEAL
+    ══════════════════════════════ */
+    .carta-section{
+      padding:8rem 5vw;
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:6rem;align-items:start;
+      border-bottom:1px solid rgba(248,244,239,.08);
+      max-width:1300px;margin:0 auto;
+    }
+    .carta-sticky{
+      position:sticky;top:10vh;
+    }
+    .carta-num{
+      font-family:'Pinyon Script',cursive;
+      font-size:clamp(6rem,15vw,10rem);
+      color:rgba(196,113,74,.12);
+      line-height:1;margin-bottom:-1rem;
+    }
+    .carta-section-title{
+      font-family:'Playfair Display',serif;font-weight:700;
+      font-size:clamp(2.5rem,6vw,4rem);
+      color:var(--white);line-height:1.1;
+    }
+    .carta-section-sub{
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.4em;text-transform:uppercase;
+      color:var(--terra);margin-top:.8rem;
+    }
+    .carta-divider-v{
+      width:1px;height:60px;background:var(--terra);
+      margin:1.5rem 0;opacity:.5;
+    }
+
+    .carta-pages-scroll{display:flex;flex-direction:column;gap:5rem;padding-top:2rem}
+    .carta-bloque{
+      opacity:0;transform:translateY(40px);
+      transition:opacity .9s ease,transform .9s ease;
+    }
+    .carta-bloque.visible{opacity:1;transform:translateY(0)}
+    .carta-bloque-num{
+      font-family:'Montserrat',sans-serif;font-size:.65rem;
+      letter-spacing:.4em;color:var(--terra);
+      text-transform:uppercase;margin-bottom:1rem;
+    }
+    .carta-bloque-text{
+      font-family:'Libre Baskerville',serif;font-style:italic;
+      font-size:clamp(1rem,2vw,1.2rem);
+      color:var(--white2);line-height:2;
+    }
+    .carta-bloque-text p{margin-bottom:1rem}
+    .carta-firma{
+      font-family:'Pinyon Script',cursive;
+      font-size:clamp(2rem,4vw,3rem);
+      color:var(--terra-light);margin-top:1.5rem;
+    }
+    .carta-cta{
+      margin-top:4rem;display:flex;align-items:center;gap:1.5rem;
+    }
+    .carta-cta-btn{
+      font-family:'Montserrat',sans-serif;font-size:.75rem;
+      letter-spacing:.3em;text-transform:uppercase;
+      background:var(--terra);border:none;
+      color:var(--white);padding:1rem 2.5rem;
+      cursor:pointer;transition:background .3s,transform .2s;
+    }
+    .carta-cta-btn:hover{background:var(--terra-light);transform:translateY(-2px)}
+    .carta-cta-line{flex:1;height:1px;background:rgba(248,244,239,.1)}
+
+    /* ══════════════════════════════
+       GALERÍA — MASONRY
+    ══════════════════════════════ */
+    .gallery-section{
+      padding:6rem 5vw 8rem;
+      border-bottom:1px solid rgba(248,244,239,.08);
+    }
+    .gallery-header{
+      display:flex;align-items:flex-end;justify-content:space-between;
+      margin-bottom:4rem;flex-wrap:wrap;gap:1rem;
+    }
+    .gallery-title-wrap{}
+    .gallery-eyebrow{
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.5em;text-transform:uppercase;color:var(--terra);
+      margin-bottom:.5rem;
+    }
+    .gallery-title{
+      font-family:'Playfair Display',serif;font-weight:700;
+      font-size:clamp(2.5rem,7vw,5rem);color:var(--white);
+    }
+    .gallery-count{
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.3em;color:var(--muted);text-transform:uppercase;
+      align-self:flex-end;padding-bottom:.5rem;
+    }
+
+    .masonry{
+      columns:3;column-gap:1.2rem;
+    }
+    .card{
+      break-inside:avoid;margin-bottom:1.2rem;
+      position:relative;overflow:hidden;cursor:pointer;
+      opacity:0;transform:translateY(30px);
+      transition:opacity .7s ease,transform .7s ease,box-shadow .4s ease;
+    }
+    .card.visible{opacity:1;transform:translateY(0)}
+    .card:hover{box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    .card img{
+      width:100%;display:block;
+      filter:brightness(.75) saturate(.8);
+      transition:filter .6s ease,transform .6s ease;
+    }
+    .card:hover img{filter:brightness(.9) saturate(1);transform:scale(1.03)}
+    .card-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(14,21,32,.95) 0%,transparent 60%);
+      display:flex;flex-direction:column;justify-content:flex-end;
+      padding:1.5rem;
+      opacity:0;transition:opacity .4s ease;
+    }
+    .card:hover .card-overlay{opacity:1}
+    .card-num{
+      font-family:'Montserrat',sans-serif;font-size:.6rem;
+      letter-spacing:.3em;color:var(--terra);text-transform:uppercase;margin-bottom:.3rem;
+    }
+    .card-text{
+      font-family:'Libre Baskerville',serif;font-style:italic;
+      font-size:.95rem;color:var(--white2);line-height:1.5;
+    }
+
+    /* ══════════════════════════════
+       LIGHTBOX
+    ══════════════════════════════ */
+    #lightbox{
+      display:none;position:fixed;inset:0;z-index:950;
+      background:rgba(14,21,32,.97);
+      align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;
+    }
+    #lightbox.open{display:flex;animation:fadeIn .3s ease}
+    #lightbox img{max-width:85vw;max-height:62vh;object-fit:contain}
+    #lightbox-caption{
+      font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1.2rem,3vw,1.8rem);
+      color:var(--terra-light);text-align:center;padding:0 2rem;
+    }
+    #lightbox-msg{
+      font-family:'Libre Baskerville',serif;font-style:italic;
+      font-size:clamp(.9rem,2vw,1.1rem);color:var(--muted);
+      text-align:center;padding:0 3rem;max-width:560px;line-height:1.9;
+      animation:fadeIn .5s ease .2s both;
+    }
+    #lightbox-close{
+      position:absolute;top:1.5rem;right:2rem;
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.3em;text-transform:uppercase;
+      color:var(--muted);background:none;border:none;cursor:pointer;
+      transition:color .2s;
+    }
+    #lightbox-close:hover{color:var(--white)}
+    .lb-nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      font-size:1.5rem;color:var(--muted);cursor:pointer;
+      background:none;border:none;padding:1rem;
+      transition:color .2s;font-family:'Montserrat',sans-serif;
+    }
+    .lb-nav:hover{color:var(--white)}
+    #lb-prev{left:1rem}#lb-next{right:1rem}
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    .site-footer{
+      padding:6rem 5vw 5rem;
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:4rem;align-items:center;
+    }
+    .footer-left{}
+    .footer-eyebrow{
+      font-family:'Montserrat',sans-serif;font-size:.7rem;
+      letter-spacing:.5em;text-transform:uppercase;color:var(--terra);margin-bottom:1rem;
+    }
+    .footer-quote{
+      font-family:'Playfair Display',serif;font-weight:700;
+      font-size:clamp(2.5rem,6vw,4.5rem);
+      color:var(--white);line-height:1.1;
+    }
+    .footer-right{
+      font-family:'Libre Baskerville',serif;font-style:italic;
+      font-size:clamp(.95rem,2vw,1.15rem);
+      color:var(--white2);line-height:2.1;
+    }
+    .footer-firma{
+      font-family:'Pinyon Script',cursive;
+      font-size:clamp(2rem,4vw,3rem);
+      color:var(--terra-light);margin-top:2rem;display:block;
+    }
+    .footer-bottom{
+      padding:2rem 5vw;
+      border-top:1px solid rgba(248,244,239,.06);
+      display:flex;justify-content:space-between;align-items:center;
+      font-family:'Montserrat',sans-serif;font-size:.65rem;
+      letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+    }
+
+    /* ══════════════════════════════
+       BOTÓN MÚSICA
+    ══════════════════════════════ */
+    #music-btn{
+      position:fixed;bottom:2rem;right:2rem;z-index:500;
+      width:44px;height:44px;border:1px solid rgba(248,244,239,.2);
+      background:var(--ink2);color:var(--white2);
+      font-size:1.1rem;cursor:pointer;
+      transition:border-color .2s,background .2s;
+    }
+    #music-btn:hover{border-color:var(--terra);background:var(--ink)}
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media(max-width:900px){
+      .carta-section{grid-template-columns:1fr;gap:2.5rem;padding:4rem 6vw}
+      .carta-sticky{position:relative;top:auto}
+      .carta-num{font-size:5rem;margin-bottom:-.5rem}
+      .masonry{columns:2;column-gap:.8rem}
+      .card{margin-bottom:.8rem}
+      .site-footer{grid-template-columns:1fr;gap:2rem;padding:4rem 6vw 3rem}
+      .hero{padding:3rem 6vw 4rem;min-height:80vh}
+      .hero-bg-text{font-size:clamp(6rem,40vw,14rem)}
+    }
+    @media(max-width:600px){
+      /* Reveal */
+      .reveal-top{padding-bottom:1rem}
+      .reveal-line{height:50px}
+      .reveal-bottom{gap:1rem;padding-top:1rem}
+
+      /* Hero */
+      .hero{
+        min-height:75vh;
+        padding:2rem 6vw 3rem;
+        justify-content:flex-end;
+      }
+      .hero-bg-text{display:none}
+      .hero-scroll{display:none}
+      .hero-h1{font-size:clamp(3rem,14vw,5rem)}
+      .hero-h2{font-size:clamp(.95rem,3.5vw,1.2rem)}
+
+      /* Carta */
+      .carta-section{padding:3rem 5vw;gap:2rem}
+      .carta-section-title{font-size:clamp(2rem,8vw,3rem)}
+      .carta-num{display:none}
+      .carta-bloque-text{font-size:.95rem;line-height:1.9}
+      .carta-pages-scroll{gap:3rem;padding-top:1rem}
+      .carta-cta{flex-direction:column;align-items:flex-start;gap:1rem}
+      .carta-cta-line{display:none}
+      .carta-cta-btn{width:100%;text-align:center;padding:.9rem 1.5rem}
+
+      /* Galería */
+      .masonry{columns:1;column-gap:0}
+      .card{margin-bottom:.8rem}
+      .card img{height:auto}
+      .gallery-section{padding:3rem 5vw 4rem}
+      .gallery-title{font-size:clamp(2rem,10vw,3.5rem)}
+      .gallery-header{flex-direction:column;align-items:flex-start;margin-bottom:2.5rem}
+
+      /* Lightbox */
+      .lb-nav{
+        top:auto;bottom:4.5rem;transform:none;
+        background:rgba(255,255,255,.08);
+        width:44px;height:44px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:1.4rem;
+      }
+      #lb-prev{left:1rem}#lb-next{right:1rem}
+      #lightbox-msg{padding:0 1.5rem;font-size:.9rem}
+      #lightbox-caption{font-size:1.1rem;padding:0 1rem}
+
+      /* Footer */
+      .site-footer{padding:3rem 5vw 2.5rem}
+      .footer-quote{font-size:clamp(2rem,10vw,3rem)}
+      .footer-right{font-size:.95rem;line-height:2}
+      .footer-firma{font-size:clamp(1.8rem,8vw,2.5rem)}
+      .footer-bottom{flex-direction:column;gap:.4rem;text-align:center;padding:1.5rem 5vw}
+
+      /* Música */
+      #music-btn{bottom:1.2rem;right:1.2rem;width:40px;height:40px;font-size:1rem}
+    }
+
+    @media(max-width:380px){
+      .hero-h1{font-size:clamp(2.5rem,13vw,4rem)}
+      .carta-bloque-text{font-size:.9rem}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ REVEAL ══ -->
+<div id="reveal">
+  <canvas id="reveal-canvas"></canvas>
+  <div class="reveal-top">
+    <div class="reveal-line"></div>
+    <span class="reveal-label">Aniversario</span>
+  </div>
+  <div class="reveal-center">
+    <div class="reveal-num">2</div>
+    <div class="reveal-word">Meses juntos</div>
+  </div>
+  <div class="reveal-bottom">
+    <div class="reveal-title">Para ti, mi amor</div>
+    <button class="reveal-btn" id="btn-entrar">Entrar ↓</button>
+  </div>
+</div>
+
+<!-- ══ SITIO ══ -->
+<div id="site">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-text">Amor</div>
+    <p class="hero-tag">✦ Dos meses juntos ✦</p>
+    <h1 class="hero-h1">Nuestro<br>Amor</h1>
+    <p class="hero-h2">Dos meses que han cambiado todo lo que sé sobre la felicidad.</p>
+    <span class="hero-scroll">Scroll</span>
+  </section>
+
+  <!-- CARTA -->
+  <div class="carta-section" id="carta-section">
+    <div class="carta-sticky">
+      <div class="carta-num">01</div>
+      <h2 class="carta-section-title">Una carta<br>para ti</h2>
+      <p class="carta-section-sub">✦ Con todo mi amor ✦</p>
+      <div class="carta-divider-v"></div>
+      <p style="font-family:'Libre Baskerville',serif;font-style:italic;font-size:.95rem;color:var(--muted);line-height:1.8">
+        Hay cosas que no sé decir en voz alta, pero que necesito que leas.
+      </p>
+    </div>
+
+    <div class="carta-pages-scroll">
+
+      <div class="carta-bloque" data-delay="0">
+        <p class="carta-bloque-num">— 01</p>
+        <div class="carta-bloque-text">
+          <p>Hace dos meses algo cambió en mí sin que me diera cuenta. No fue un momento dramático ni una revelación repentina. Fue algo más silencioso: de pronto quería contarte todo, quería saber cómo estabas, quería que el día no terminara si estabas tú en él.</p>
+          <p>Así empezó esto. Sin avisar, sin pedir permiso. Y desde entonces no ha parado.</p>
+        </div>
+      </div>
+
+      <div class="carta-bloque" data-delay="100">
+        <p class="carta-bloque-num">— 02</p>
+        <div class="carta-bloque-text">
+          <p>He aprendido cosas de ti que nadie me enseñó. Que tu silencio también habla, que cuando algo te preocupa lo cargas sola antes de decirlo, que tu risa cambia un poco cuando algo te divierte de verdad.</p>
+          <p>Me gusta que te conozco así, de a poco, como se conoce algo que vale la pena.</p>
+        </div>
+      </div>
+
+      <div class="carta-bloque" data-delay="200">
+        <p class="carta-bloque-num">— 03</p>
+        <div class="carta-bloque-text">
+          <p>Eres enfermera, y eso dice mucho de quién eres. Elegiste una carrera que exige darlo todo, que pone a prueba la paciencia y el corazón cada día. Y tú lo haces con una calma y una entrega que me deja sin palabras.</p>
+          <p>Cuidas a personas que no conoces con la misma dedicación con la que cuidas a los que amas. Eso no es trabajo, eso es vocación. Y yo tengo la suerte de que esa persona tan extraordinaria también sea mía.</p>
+        </div>
+      </div>
+
+      <div class="carta-bloque" data-delay="300">
+        <p class="carta-bloque-num">— 04</p>
+        <div class="carta-bloque-text">
+          <p>Dos meses son pocos para todo lo que ya siento. Pero son suficientes para saber que quiero más. Más tiempo, más conversaciones, más momentos guardados en la memoria.</p>
+          <p>Hoy celebro dos meses contigo. Pero en mi cabeza ya estoy pensando en todo lo que viene.</p>
+        </div>
+        <div class="carta-firma">Tuyo, siempre.</div>
+        <div class="carta-cta">
+          <div class="carta-cta-line"></div>
+          <button class="carta-cta-btn" id="btn-galeria">Ver nuestros momentos →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GALERÍA -->
+  <section class="gallery-section" id="gallery-section" style="display:none">
+    <div class="gallery-header">
+      <div class="gallery-title-wrap">
+        <p class="gallery-eyebrow">✦ Recuerdos ✦</p>
+        <h2 class="gallery-title">Momentos nuestros</h2>
+      </div>
+      <span class="gallery-count" id="gallery-count">— 06 fotografías</span>
+    </div>
+    <div class="masonry" id="gallery">
+
+      <div class="card" data-index="0" data-msg="El día que todo empezó. Desde ese momento supe que contigo quería quedarme mucho tiempo. 🌙">
+        <img src="foto1.jpg" alt="01" onerror="this.src='https://picsum.photos/seed/a1/600/800'"/>
+        <div class="card-overlay">
+          <span class="card-num">01</span>
+          <p class="card-text">El comienzo de todo 🌙</p>
+        </div>
+      </div>
+
+      <div class="card" data-index="1" data-msg="Hay algo en tu mirada que me detiene el tiempo. Cuando me miras así, el mundo entero desaparece. ✨">
+        <img src="foto2.jpg" alt="02" onerror="this.src='https://picsum.photos/seed/a2/600/700'"/>
+        <div class="card-overlay">
+          <span class="card-num">02</span>
+          <p class="card-text">La mirada que me detiene ✨</p>
+        </div>
+      </div>
+
+      <div class="card" data-index="2" data-msg="Contigo hasta los momentos más simples se vuelven los que más quiero recordar. 🌿">
+        <img src="foto3.jpg" alt="03" onerror="this.src='https://picsum.photos/seed/a3/600/900'"/>
+        <div class="card-overlay">
+          <span class="card-num">03</span>
+          <p class="card-text">Lo simple se vuelve especial 🌿</p>
+        </div>
+      </div>
+
+      <div class="card" data-index="3" data-msg="Cada vez que estamos juntos me doy cuenta de lo afortunado que soy de tenerte en mi vida. 💛">
+        <img src="foto4.jpg" alt="04" onerror="this.src='https://picsum.photos/seed/a4/600/750'"/>
+        <div class="card-overlay">
+          <span class="card-num">04</span>
+          <p class="card-text">La suerte de tenerte 💛</p>
+        </div>
+      </div>
+
+      <div class="card" data-index="4" data-msg="Eres la persona más auténtica que conozco. No necesitas ser nadie más que tú para ser perfecta para mí. 🌸">
+        <img src="foto5.jpg" alt="05" onerror="this.src='https://picsum.photos/seed/a5/600/820'"/>
+        <div class="card-overlay">
+          <span class="card-num">05</span>
+          <p class="card-text">Perfecta siendo tú 🌸</p>
+        </div>
+      </div>
+
+      <div class="card" data-index="5" data-msg="Dos meses que han pasado volando. Quiero más tiempo, siempre más tiempo contigo. 🕯️">
+        <img src="foto6.jpg" alt="06" onerror="this.src='https://picsum.photos/seed/a6/600/780'"/>
+        <div class="card-overlay">
+          <span class="card-num">06</span>
+          <p class="card-text">El tiempo vuela contigo 🕯️</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" id="site-footer" style="display:none">
+    <div class="footer-left">
+      <p class="footer-eyebrow">✦ Para siempre ✦</p>
+      <p class="footer-quote">Dos meses<br>que lo<br>cambiaron todo.</p>
+    </div>
+    <div class="footer-right">
+      Eres mi enfermera favorita, la persona que cuida a todos con el corazón más grande que he conocido, y la misma que sin saberlo también me cuida a mí cada día.<br><br>
+      Gracias por tu paciencia, por tu ternura, por la forma en que haces que todo parezca más fácil con solo estar cerca.<br><br>
+      Hoy celebramos dos meses, pero lo que siento por ti ya no cabe en ningún número. Solo sé que quiero seguir contando los días a tu lado.
+      <span class="footer-firma">Con todo lo que soy, tuyo.</span>
+    </div>
+  </footer>
+  <div class="footer-bottom" id="footer-bottom" style="display:none">
+    <span>✦ Dos meses juntos ✦</span>
+    <span>Con amor, siempre.</span>
+  </div>
+
+</div>
+
+<button id="music-btn" title="Música">♪</button>
+
+<div id="lightbox">
+  <button id="lightbox-close">Cerrar ✕</button>
+  <button class="lb-nav" id="lb-prev">‹</button>
+  <img id="lb-img" src="" alt=""/>
+  <p id="lightbox-caption"></p>
+  <p id="lightbox-msg"></p>
+  <button class="lb-nav" id="lb-next">›</button>
+</div>
+
+<script>
+window.scrollTo(0,0);
+history.scrollRestoration='manual';
+document.body.style.overflow='hidden';
+
+// ══ CANVAS REVEAL — partículas elegantes ══
+const rc = document.getElementById('reveal-canvas');
+const rCtx = rc.getContext('2d');
+let revealRunning = true;
+function resizeRC(){ rc.width=window.innerWidth; rc.height=window.innerHeight; }
+resizeRC(); window.addEventListener('resize', resizeRC);
+
+const emojis = ['💛','🌙','✨','💫','🌟','❤️','🌹'];
+const rPieces = [];
+
+// Partículas pequeñas tipo polvo dorado
+for(let i=0;i<80;i++){
+  rPieces.push({
+    type:'dust',
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*1.8+.4,
+    alpha:Math.random()*.6+.1,
+    speed:Math.random()*.4+.1,
+    drift:(Math.random()-.5)*.3,
+    alphaSpeed:(Math.random()*.006+.002)*(Math.random()<.5?1:-1)
+  });
+}
+// Emojis flotando suavemente
+for(let i=0;i<12;i++){
+  rPieces.push({
+    type:'emoji',
+    x:Math.random()*window.innerWidth,
+    y:window.innerHeight+Math.random()*300,
+    size:Math.random()*18+10,
+    speed:Math.random()*.6+.3,
+    drift:(Math.random()-.5)*.5,
+    alpha:Math.random()*.35+.15,
+    emoji:emojis[Math.floor(Math.random()*emojis.length)],
+    delay:Math.random()*4000
+  });
+}
+
+let rStart=null;
+function animateReveal(ts){
+  if(!revealRunning)return;
+  if(!rStart)rStart=ts;
+  rCtx.clearRect(0,0,rc.width,rc.height);
+  rPieces.forEach(p=>{
+    if(p.type==='dust'){
+      p.y-=p.speed; p.x+=p.drift; p.alpha+=p.alphaSpeed;
+      if(p.alpha>0.7||p.alpha<0.05)p.alphaSpeed*=-1;
+      if(p.y<-5){p.y=rc.height+5;p.x=Math.random()*rc.width;}
+      rCtx.beginPath();
+      rCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      rCtx.fillStyle=`rgba(196,113,74,${p.alpha})`;
+      rCtx.fill();
+    } else {
+      if(ts-rStart<p.delay)return;
+      p.y-=p.speed; p.x+=p.drift;
+      if(p.y<-40){p.y=rc.height+30;p.x=Math.random()*rc.width;}
+      rCtx.save();
+      rCtx.globalAlpha=p.alpha;
+      rCtx.font=`${p.size}px serif`;
+      rCtx.fillText(p.emoji,p.x,p.y);
+      rCtx.restore();
+    }
+  });
+  requestAnimationFrame(animateReveal);
+}
+requestAnimationFrame(animateReveal);
+
+// ══ REVEAL → ENTRAR ══
+document.getElementById('btn-entrar').addEventListener('click',()=>{
+  revealRunning=false;
+  document.getElementById('reveal').classList.add('gone');
+  const site = document.getElementById('site');
+  site.classList.add('visible');
+  document.body.style.overflow='';
+  startMusic();
+});
+
+// ══ MÚSICA ══
+let musicPlaying=false, musicFrame=null;
+const musicBtn=document.getElementById('music-btn');
+function startMusic(){
+  if(musicFrame)return;
+  musicFrame=document.createElement('iframe');
+  musicFrame.width='1';musicFrame.height='1';
+  musicFrame.style.cssText='position:fixed;top:-10px;left:-10px;opacity:.01;pointer-events:none;';
+  musicFrame.setAttribute('allow','autoplay;encrypted-media');
+  musicFrame.setAttribute('frameborder','0');
+  // ══ Cambia el ID por la canción que quieras ══
+  musicFrame.src='https://www.youtube.com/embed/I-H7jz2ICwU?autoplay=1&loop=1&playlist=I-H7jz2ICwU&controls=0&origin='+window.location.origin;
+  document.body.appendChild(musicFrame);
+  musicPlaying=true; musicBtn.textContent='♪';
+}
+musicBtn.addEventListener('click',()=>{
+  if(!musicFrame){startMusic();return;}
+  if(musicPlaying){musicFrame.src='';musicPlaying=false;musicBtn.textContent='♩';}
+  else{musicFrame.src='https://www.youtube.com/embed/I-H7jz2ICwU?autoplay=1&loop=1&playlist=I-H7jz2ICwU&controls=0';musicPlaying=true;musicBtn.textContent='♪';}
+});
+
+// ══ SCROLL REVEAL CARTA ══
+const bloques=document.querySelectorAll('.carta-bloque');
+const blObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const delay=parseInt(e.target.dataset.delay||0);
+      setTimeout(()=>e.target.classList.add('visible'),delay);
+      blObs.unobserve(e.target);
+    }
+  });
+},{threshold:.2});
+bloques.forEach(b=>blObs.observe(b));
+
+// ══ BOTÓN VER GALERÍA ══
+document.getElementById('btn-galeria').addEventListener('click',()=>{
+  const gs=document.getElementById('gallery-section');
+  gs.style.display='block';
+  document.getElementById('site-footer').style.display='grid';
+  document.getElementById('footer-bottom').style.display='flex';
+  setTimeout(()=>{
+    gs.scrollIntoView({behavior:'smooth',block:'start'});
+    initCards();
+  },100);
+});
+
+// ══ CARDS + LIGHTBOX ══
+function initCards(){
+  const cards=document.querySelectorAll('.card');
+  document.getElementById('gallery-count').textContent=`— ${String(cards.length).padStart(2,'0')} fotografías`;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        setTimeout(()=>e.target.classList.add('visible'),parseInt(e.target.dataset.index)*100);
+        obs.unobserve(e.target);
+      }
+    });
+  },{threshold:.1});
+  cards.forEach(c=>obs.observe(c));
+
+  const data=Array.from(cards).map(c=>({
+    src:c.querySelector('img').src,
+    caption:c.querySelector('.card-text').textContent.trim(),
+    msg:c.dataset.msg||''
+  }));
+  let current=0;
+  const lb=document.getElementById('lightbox');
+  const lbImg=document.getElementById('lb-img');
+  const lbCap=document.getElementById('lightbox-caption');
+  const lbMsg=document.getElementById('lightbox-msg');
+
+  function openLb(idx){current=idx;lbImg.src=data[idx].src;lbCap.textContent=data[idx].caption;lbMsg.textContent=data[idx].msg;lb.classList.add('open');document.body.style.overflow='hidden';}
+  function closeLb(){lb.classList.remove('open');document.body.style.overflow='';}
+  function navigate(dir){current=(current+dir+data.length)%data.length;lbImg.src=data[current].src;lbCap.textContent=data[current].caption;lbMsg.textContent=data[current].msg;}
+
+  cards.forEach((c,i)=>c.addEventListener('click',()=>openLb(i)));
+  document.getElementById('lightbox-close').addEventListener('click',closeLb);
+  document.getElementById('lb-prev').addEventListener('click',()=>navigate(-1));
+  document.getElementById('lb-next').addEventListener('click',()=>navigate(1));
+  lb.addEventListener('click',e=>{if(e.target===lb)closeLb();});
+  document.addEventListener('keydown',e=>{
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')closeLb();
+    if(e.key==='ArrowLeft')navigate(-1);
+    if(e.key==='ArrowRight')navigate(1);
+  });
+  let lbTX=null;
+  lb.addEventListener('touchstart',e=>{lbTX=e.touches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',e=>{if(lbTX===null)return;const d=lbTX-e.changedTouches[0].clientX;if(Math.abs(d)>50)navigate(d>0?1:-1);lbTX=null;},{passive:true});}
+</script>
+</body>
+</html>
